@@ -1,0 +1,59 @@
+import os
+
+import pandas as pd
+import anjana
+from anjana.anonymity import k_anonymity, l_diversity, t_closeness
+
+# Read and process the data
+data = pd.read_csv("adult-simplified.csv")
+data.columns = data.columns.str.strip()
+cols = [
+    "age",
+    "workclass",
+    "education",
+    "marital_status",
+    "occupation",
+    "sex",
+    "native_country",
+]
+for col in cols:
+    lala = data[col]
+    data[col] = data[col].str.strip()
+
+# Define the identifiers, quasi-identifiers and the sensitive attribute
+quasi_ident = [
+    "age",
+    "education",
+    "occupation",
+    "marital_status",
+    "sex",
+    "native_country",
+]
+ident = ["fnlwgt"]
+sens_att = "income"
+
+# Select the desired level of k, l and t
+k = 10
+
+# Select the suppression limit allowed
+supp_level = 0
+
+# Import the hierarchies for each quasi-identifier. Define a dictionary containing them
+hierarchies = {
+    "age": dict(pd.read_csv("hierarchies/age.csv", header=None)),
+    "education": dict(pd.read_csv("hierarchies/education.csv", header=None)),
+    "occupation": dict(pd.read_csv("hierarchies/occupation.csv", header=None)),
+    "marital-status": dict(pd.read_csv("hierarchies/marital.csv", header=None)),
+    "sex": dict(pd.read_csv("hierarchies/sex.csv", header=None)),
+    "native-country": dict(pd.read_csv("hierarchies/country.csv", header=None)),
+    "race": dict(pd.read_csv("hierarchies/race.csv", header=None)),
+}
+
+output_dir = "adult_anonymized"
+os.makedirs(output_dir, exist_ok=True)
+
+# Apply k-anonymity and save
+for i in range(0, 11):  # 2^1 to 2^10 = 2 to 1024
+    k = 2**i
+    anon_data = k_anonymity(data, ident, quasi_ident, k, supp_level, hierarchies)
+    anon_data.to_csv(os.path.join(output_dir, f"adult_k{k}.csv"), index=False)
