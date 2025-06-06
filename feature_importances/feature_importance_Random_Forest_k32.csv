@@ -1,0 +1,13 @@
+feature,importance,model,k
+workclass,0.023641267256143888,Random Forest,32
+marital_status,0.2806504392633155,Random Forest,32
+occupation,0.028244455985460062,Random Forest,32
+race,0.035240438553772846,Random Forest,32
+sex,0.04430395663331904,Random Forest,32
+native_country,0.004788233034353685,Random Forest,32
+age_lower,0.13118367381056686,Random Forest,32
+age_upper,0.09984302123650945,Random Forest,32
+age_range_width,0.044817235310204435,Random Forest,32
+education_num_lower,0.1302385455640633,Random Forest,32
+education_num_upper,0.13403715966556812,Random Forest,32
+education_num_range_width,0.04301157368672274,Random Forest,32

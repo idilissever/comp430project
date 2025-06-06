@@ -1,0 +1,13 @@
+feature,importance,model,k
+workclass,0.00055352572509972,Logistic Regression,16
+marital_status,0.21590486833516906,Logistic Regression,16
+occupation,0.030544384785927685,Logistic Regression,16
+race,0.11236103264853158,Logistic Regression,16
+sex,0.7375963978541912,Logistic Regression,16
+native_country,0.02431904445125215,Logistic Regression,16
+age_lower,0.04441759273222031,Logistic Regression,16
+age_upper,0.012172738858621801,Logistic Regression,16
+age_range_width,0.032244853873399835,Logistic Regression,16
+education_num_lower,0.15554318080772062,Logistic Regression,16
+education_num_upper,0.22693802595970608,Logistic Regression,16
+education_num_range_width,0.07139484515188672,Logistic Regression,16

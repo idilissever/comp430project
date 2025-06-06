@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from generalization_utils import preprocess_anonymized_dataframe
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score, roc_auc_score
@@ -16,59 +17,82 @@ CATEGORICAL_COLS = ["workclass", "marital_status", "occupation", "race", "sex", 
 
 # Classifiers
 MODELS = {
-	"Logistic Regression": LogisticRegression(max_iter=1000),
-	"Decision Tree": DecisionTreeClassifier(),
-	"Random Forest": RandomForestClassifier(n_estimators=100),
-	"XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+    "Logistic Regression": LogisticRegression(max_iter=1000),
+    "Decision Tree": DecisionTreeClassifier(),
+    "Random Forest": RandomForestClassifier(n_estimators=100),
+    "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss')
 }
 
 results = []
 
 # Loop through all anonymized_k*.csv files
 for filename in sorted(os.listdir(INPUT_FOLDER)):
-	if not filename.endswith(".csv"):
-		continue
-	k_val = filename.split("_k")[-1].replace(".csv", "")
-	df = pd.read_csv(os.path.join(INPUT_FOLDER, filename))
+    if not filename.endswith(".csv"):
+        continue
+    k_val = filename.split("_k")[-1].replace(".csv", "")
+    df = pd.read_csv(os.path.join(INPUT_FOLDER, filename))
 
-	print("=" * 60)
-	print("Processing k =", k_val)
+    print("=" * 60)
+    print("Processing k =", k_val)
 
-	df = preprocess_anonymized_dataframe(
-		df,
-		numeric_interval_columns=NUMERIC_INTERVALS,
-		categorical_columns=CATEGORICAL_COLS,
-		target_column=TARGET,
-		keep_width=True
-	)
+    df = preprocess_anonymized_dataframe(
+        df,
+        numeric_interval_columns=NUMERIC_INTERVALS,
+        categorical_columns=CATEGORICAL_COLS,
+        target_column=TARGET,
+        keep_width=True
+    )
 
-	X = df.drop(columns=[TARGET])
-	y = df[TARGET]
-	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X = df.drop(columns=[TARGET])
+    y = df[TARGET]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-	for model_name, model in MODELS.items():
-		model.fit(X_train, y_train)
-		y_pred_train = model.predict(X_train)
-		y_pred_test = model.predict(X_test)
+    for model_name, model in MODELS.items():
+        model.fit(X_train, y_train)
+        y_pred_train = model.predict(X_train)
+        y_pred_test = model.predict(X_test)
 
-		try:
-			y_proba = model.predict_proba(X_test)[:, 1]
-			auc = roc_auc_score(y_test, y_proba)
-		except AttributeError:
-			auc = None  # Model does not support predict_proba
+        try:
+            y_proba = model.predict_proba(X_test)[:, 1]
+            auc = roc_auc_score(y_test, y_proba)
+        except AttributeError:
+            auc = None  # Model does not support predict_proba
 
-		results.append({
-			"k": int(k_val),
-			"model": model_name,
-			"train_accuracy": round(accuracy_score(y_train, y_pred_train), 4),
-			"test_accuracy": round(accuracy_score(y_test, y_pred_test), 4),
-			"precision": round(precision_score(y_test, y_pred_test), 4),
-			"recall": round(recall_score(y_test, y_pred_test), 4),
-			"f1_score": round(f1_score(y_test, y_pred_test), 4),
-			"roc_auc_score": round(auc, 4) if auc is not None else None
+        results.append({
+            "k": int(k_val),
+            "model": model_name,
+            "train_accuracy": round(accuracy_score(y_train, y_pred_train), 4),
+            "test_accuracy": round(accuracy_score(y_test, y_pred_test), 4),
+            "precision": round(precision_score(y_test, y_pred_test), 4),
+            "recall": round(recall_score(y_test, y_pred_test), 4),
+            "f1_score": round(f1_score(y_test, y_pred_test), 4),
+            "roc_auc_score": round(auc, 4) if auc is not None else None
+        })
 
-		})
-		print(f"✅ {model_name} @ k={k_val} → Test Accuracy: {round(accuracy_score(y_test, y_pred_test), 4):.4f}")
+        print(f"✅ {model_name} @ k={k_val} → Test Accuracy: {round(accuracy_score(y_test, y_pred_test), 4):.4f}")
+
+        # Feature importances / coefficients
+        if hasattr(model, "feature_importances_"):
+            importance = model.feature_importances_
+        elif hasattr(model, "coef_"):
+            importance = np.abs(model.coef_[0])
+        else:
+            importance = None
+
+        if importance is not None:
+            print(f"🔎 Feature Importances ({model_name} @ k={k_val}):")
+            feature_importance = sorted(zip(X.columns, importance), key=lambda x: x[1], reverse=True)
+            for fname, score in feature_importance[:5]:
+                print(f"   {fname:20s}: {score:.4f}")
+
+            importance_df = pd.DataFrame({
+                "feature": X.columns,
+                "importance": importance,
+                "model": model_name,
+                "k": int(k_val)
+            })
+            fname = f"feature_importances/feature_importance_{model_name.replace(' ', '_')}_k{k_val}.csv"
+            importance_df.to_csv(fname, index=False)
 
 # Export summary report
 report_df = pd.DataFrame(results)

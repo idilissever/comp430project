@@ -1,0 +1,13 @@
+feature,importance,model,k
+workclass,0.0074656894,XGBoost,128
+marital_status,0.5513673,XGBoost,128
+occupation,0.0,XGBoost,128
+race,0.0,XGBoost,128
+sex,0.017519219,XGBoost,128
+native_country,0.0,XGBoost,128
+age_lower,0.075649075,XGBoost,128
+age_upper,0.046461806,XGBoost,128
+age_range_width,0.012402628,XGBoost,128
+education_num_lower,0.22768228,XGBoost,128
+education_num_upper,0.0569342,XGBoost,128
+education_num_range_width,0.0045178533,XGBoost,128

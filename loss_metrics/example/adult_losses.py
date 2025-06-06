@@ -7,7 +7,7 @@ from loss_metrics.loss_calculator import *
 
 
 def main():
-    RAW_DATASET_PATH = Path("../../anjana_anonymizer/adult.csv")
+    RAW_DATASET_PATH = Path("../../anjana_anonymizer/adult-over-simplified.csv")
     raw_dataset = pd.read_csv(RAW_DATASET_PATH)
     raw_dataset = raw_dataset.to_dict(orient="records")
     raw_dataset = [
@@ -18,7 +18,7 @@ def main():
     k_values = [2**i for i in range(0, 11)]  # k = 1, 2, 4, ..., 1024
     for k in k_values:
         ANONYMIZED_DATASET_PATH = Path(
-            f"../../anjana_anonymizer/adult_anonymized/adult_k{k}.csv"
+            f"../../anjana_anonymizer/adult_over_simplified_anonymized/adult_k{k}.csv"
         )
         anonymized_dataset = pd.read_csv(ANONYMIZED_DATASET_PATH)
         anonymized_dataset = anonymized_dataset.to_dict(orient="records")

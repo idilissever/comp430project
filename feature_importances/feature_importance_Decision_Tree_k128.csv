@@ -1,0 +1,13 @@
+feature,importance,model,k
+workclass,0.0032496212404832265,Decision Tree,128
+marital_status,0.46179274930940073,Decision Tree,128
+occupation,0.0,Decision Tree,128
+race,0.0,Decision Tree,128
+sex,0.00943909998206828,Decision Tree,128
+native_country,0.0,Decision Tree,128
+age_lower,0.2072782698231842,Decision Tree,128
+age_upper,0.04687300446915623,Decision Tree,128
+age_range_width,0.005832023694968122,Decision Tree,128
+education_num_lower,0.24018890678265198,Decision Tree,128
+education_num_upper,0.00026406095427567594,Decision Tree,128
+education_num_range_width,0.025082263743811405,Decision Tree,128
