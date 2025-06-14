@@ -1,12 +1,12 @@
 from pathlib import Path
-from dgh.dgh import DGH
-from dgh.anjana.anjana_dgh import build_dgh_from_csv
+from dgh_processing.dgh import DGH
+from dgh_processing.anjana.anjana_dgh import build_dgh_from_csv
 
 
 def get_csv_adult_dghs() -> list[DGH]:
     """Return a dictionary of DGHs for the adult dataset using CSV-based hierarchy files."""
 
-    spec_dir = Path("../../anjana_anonymizer/hierarchies")
+    spec_dir = Path("../anjana_anonymizer/hierarchies")
     dghs: list[DGH] = [
         build_dgh_from_csv(spec_dir / "age.csv", "age"),
         # build_dgh_from_csv(spec_dir / "country.csv", "native_country"),

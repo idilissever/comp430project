@@ -1,7 +1,7 @@
 from __future__ import annotations
 import csv
 from pathlib import Path
-from dgh.dgh import DGH, DGHNode
+from dgh_processing.dgh import DGH, DGHNode
 
 
 def build_dgh_from_csv(

@@ -1,0 +1,134 @@
+from __future__ import annotations
+
+from dgh_processing.anjana.adult_dgh import get_csv_adult_dghs
+
+from pathlib import Path
+
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+
+from preprocessor import Preprocessor, encode_features
+
+try:
+    from xgboost import XGBClassifier
+except ImportError:
+    XGBClassifier = None
+
+TARGET_COL = "income"
+TEST_SIZE = 0.2
+RANDOM_STATE = 42
+CV = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+
+STRATEGY = {
+    "age": "interval",
+    "workclass": "one_hot",
+    "education": "one_hot",
+    "marital_status": "one_hot",
+    "occupation": "one_hot",
+    "sex": "one_hot",
+}
+
+# ---------------------------------------------------------------------------
+# Model registry with grid definitions
+# ---------------------------------------------------------------------------
+
+MODEL_REGISTRY = {
+    "logistic": (LogisticRegression(max_iter=1000, n_jobs=-1), {"C": [0.1, 1, 10]}),
+    "tree": (
+        DecisionTreeClassifier(random_state=RANDOM_STATE),
+        {"max_depth": [5, 10, None], "min_samples_split": [2, 5]},
+    ),
+    "forest": (
+        RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1),
+        {
+            "n_estimators": [100, 200],
+            "max_depth": [5, 10, None],
+            "min_samples_split": [2, 5],
+        },
+    ),
+    "mlp": (
+        MLPClassifier(
+            hidden_layer_sizes=(16, 16),
+            activation="relu",
+            max_iter=300,
+            random_state=RANDOM_STATE,
+        ),
+        {},
+    ),
+    "svm": (SVC(), {"C": [0.1, 1, 10], "kernel": ["linear", "rbf"]}),
+    "xgb": (
+        (
+            XGBClassifier(
+                use_label_encoder=False, eval_metric="logloss", n_jobs=-1, verbosity=0
+            )
+            if XGBClassifier
+            else None
+        ),
+        {"n_estimators": [100, 200], "max_depth": [3, 6], "learning_rate": [0.1, 0.3]},
+    ),
+}
+
+# ---------------------------------------------------------------------------
+# Main procedure
+# ---------------------------------------------------------------------------
+
+
+def main(csv_path: Path, model_key: str):
+    DGH_MAP = {dgh.column_name: dgh for dgh in get_csv_adult_dghs()}
+    df = pd.read_csv(csv_path).drop(columns=["index"])
+    train_df, test_df = train_test_split(
+        df,
+        test_size=TEST_SIZE,
+        random_state=RANDOM_STATE,
+        stratify=df[TARGET_COL],
+    )
+
+    prep = Preprocessor(DGH_MAP, STRATEGY)
+    prep.fit(train_df.drop(columns=[TARGET_COL]))
+    X_train, y_train = encode_features(prep, train_df, y_col=TARGET_COL)
+    X_test, y_test = encode_features(prep, test_df, y_col=TARGET_COL)
+
+    model_base, param_grid = MODEL_REGISTRY[model_key]
+    if model_base is None:
+        raise ImportError("XGBoost not installed")
+
+    if param_grid:
+        model = GridSearchCV(
+            model_base, param_grid, cv=CV, scoring="accuracy", n_jobs=-1
+        )
+        model.fit(X_train, y_train)
+        best_model = model.best_estimator_
+        print(f"{model_key}: Best CV params: {model.best_params_}")
+    else:
+        best_model = model_base.fit(X_train, y_train)
+        print(f"{model_key}: No hyperparameter search; using default.")
+
+    preds = best_model.predict(X_test)
+    acc = accuracy_score(y_test, preds)
+    print(f"Test Accuracy: {acc:.4f}\n")
+    print(classification_report(y_test, preds))
+    return acc
+
+
+if __name__ == "__main__":
+    k_values = [2**i for i in range(11)]
+    model_keys = ["logistic", "tree", "forest", "mlp", "svm"]
+    if XGBClassifier:
+        model_keys.append("xgb")
+
+    for model_key in model_keys:
+        print(f"=== Model: {model_key} ===")
+        for i in k_values:
+            print(f"k={i}")
+            csv_path = (
+                Path("../anjana_anonymizer")
+                / f"adult_over_simplified_clean/adult_k{i}.csv"
+            )
+            main(csv_path, model_key)
+        print("\n")

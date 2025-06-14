@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from dgh.anjana.adult_dgh import get_csv_adult_dghs
+from dgh_processing.anjana.adult_dgh import get_csv_adult_dghs
 from loss_metrics.loss_calculator import *
 
 
@@ -27,11 +27,14 @@ def main():
         md_loss = calculate_md_loss(adult_dghs, raw_dataset, anonymized_dataset)
         lm_loss = calculate_lm_loss(adult_dghs, anonymized_dataset)
         print(f"k={k}, MD Loss: {md_loss}, LM Loss: {lm_loss}")
-        results.append({"k": k, "md_loss": round(md_loss, 4), "lm_loss": round(lm_loss, 4)})
+        results.append(
+            {"k": k, "md_loss": round(md_loss, 4), "lm_loss": round(lm_loss, 4)}
+        )
 
     result_df = pd.DataFrame(results)
     result_df.to_csv("loss_metrics_report.csv", index=False)
     print("📁 Saved: loss_metrics_report.csv")
+
 
 if __name__ == "__main__":
     main()

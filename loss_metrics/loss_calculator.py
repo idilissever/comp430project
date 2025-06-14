@@ -1,4 +1,4 @@
-from dgh.dgh import DGH, most_recent_common_ancestor
+from dgh_processing.dgh import DGH, most_recent_common_ancestor
 
 
 def calculate_md_loss(

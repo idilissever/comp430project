@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
-from dgh.dgh import DGH, DGHNode, add_node
+from dgh_processing.dgh import DGH, DGHNode, add_node
 
 
 def _populate_dgh(dgh: DGH, spec_lines: list[str]) -> None:

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from dgh.dgh import DGH
-from dgh.mondrian.mondrian_basic_dgh import build_dgh_from_file
+from dgh_processing.dgh import DGH
+from dgh_processing.mondrian.mondrian_basic_dgh import build_dgh_from_file
 
 
 def get_adult_dghs() -> dict[str, DGH]:
