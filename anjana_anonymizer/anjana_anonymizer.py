@@ -27,7 +27,7 @@ quasi_ident = [
 	"marital_status",
 	"sex",
 ]
-ident = ['index']
+ident = []
 sens_att = "income"
 
 # Select the suppression limit allowed
