@@ -3,6 +3,7 @@ from __future__ import annotations
 from dgh_processing.anjana.adult_dgh import get_csv_adult_dghs
 
 from pathlib import Path
+import csv
 
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -73,6 +74,7 @@ MODEL_REGISTRY = {
         {"n_estimators": [100, 200], "max_depth": [3, 6], "learning_rate": [0.1, 0.3]},
     ),
 }
+results = []
 
 # ---------------------------------------------------------------------------
 # Main procedure
@@ -111,16 +113,39 @@ def main(csv_path: Path, model_key: str):
 
     preds = best_model.predict(X_test)
     acc = accuracy_score(y_test, preds)
+    report = classification_report(y_test, preds, output_dict=True)
     print(f"Test Accuracy: {acc:.4f}\n")
     print(classification_report(y_test, preds))
+
+    result_entry = {
+        "model": model_key,
+        "k": int(csv_path.stem.split("_k")[-1]),
+        "accuracy": acc,
+        "precision_0": report["<=50K"]["precision"],
+        "recall_0": report["<=50K"]["recall"],
+        "f1_0": report["<=50K"]["f1-score"],
+        "precision_1": report[">50K"]["precision"],
+        "recall_1": report[">50K"]["recall"],
+        "f1_1": report[">50K"]["f1-score"],
+        "macro_avg_precision": report["macro avg"]["precision"],
+        "macro_avg_recall": report["macro avg"]["recall"],
+        "macro_avg_f1": report["macro avg"]["f1-score"],
+        "weighted_avg_precision": report["weighted avg"]["precision"],
+        "weighted_avg_recall": report["weighted avg"]["recall"],
+        "weighted_avg_f1": report["weighted avg"]["f1-score"],
+    }
+    results.append(result_entry)
+
     return acc
 
 
 if __name__ == "__main__":
     k_values = [2**i for i in range(11)]
     model_keys = ["logistic", "tree", "forest", "mlp", "svm"]
+
     if XGBClassifier:
-        model_keys.append("xgb")
+        # model_keys.append("xgb")
+        pass
 
     for model_key in model_keys:
         print(f"=== Model: {model_key} ===")
@@ -132,3 +157,9 @@ if __name__ == "__main__":
             )
             main(csv_path, model_key)
         print("\n")
+
+    with open("model_results.csv", "w", newline="") as f:
+        fieldnames = sorted({k for r in results for k in r})
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)

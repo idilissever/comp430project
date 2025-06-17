@@ -1,0 +1,12 @@
+blue-collar,skilled-labor,employed,*
+management,white-collar,employed,*
+technician,skilled-labor,employed,*
+admin.,white-collar,employed,*
+services,skilled-labor,employed,*
+retired,out-of-work,not-employed,*
+self-employed,self-directed,not-employed,*
+entrepreneur,self-directed,not-employed,*
+unemployed,out-of-work,not-employed,*
+housemaid,skilled-labor,employed,*
+student,out-of-work,not-employed,*
+unknown,unknown,unknown,*

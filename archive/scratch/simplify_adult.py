@@ -29,7 +29,7 @@ def reduce_to_matching_columns(
 
 # Example usage:
 reduce_to_matching_columns(
-    "../raw_data/adult.csv",
+	"../../raw_data/adult.csv",
     "../anjana_anonymizer/adult-simplified.csv",
     "../anjana_anonymizer/adult-simplified.csv",
 )
