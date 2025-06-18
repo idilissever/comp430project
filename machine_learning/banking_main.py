@@ -13,14 +13,19 @@ from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKF
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import confusion_matrix
 
 from preprocessor import Preprocessor, encode_features
+
+from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE
 
 try:
 	from xgboost import XGBClassifier
 except ImportError:
 	XGBClassifier = None
 
+scaler = StandardScaler()
 TARGET_COL = "y"
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
@@ -41,13 +46,13 @@ STRATEGY = {
 # ---------------------------------------------------------------------------
 
 MODEL_REGISTRY = {
-	"logistic": (LogisticRegression(max_iter=100000, n_jobs=-1), {"C": [0.1, 1, 10]}),
+	"logistic": (LogisticRegression(max_iter=100000, n_jobs=-1, class_weight="balanced"), {"C": [0.1, 1, 10]}),
 	"tree": (
-		DecisionTreeClassifier(random_state=RANDOM_STATE),
+		DecisionTreeClassifier(random_state=RANDOM_STATE, class_weight="balanced"),
 		{"max_depth": [5, 10, None], "min_samples_split": [2, 5]},
 	),
 	"forest": (
-		RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1),
+		RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, class_weight="balanced"),
 		{
 			"n_estimators": [100, 200],
 			"max_depth": [5, 10, None],
@@ -63,7 +68,7 @@ MODEL_REGISTRY = {
 		),
 		{},
 	),
-	"svm": (SVC(), {"C": [0.1, 1, 10], "kernel": ["linear", "rbf"]}),
+	"svm": (SVC(class_weight="balanced"), {"C": [0.1, 1, 10], "kernel": ["linear", "rbf"]}),
 	"xgb": (
 		(
 			XGBClassifier(
@@ -97,6 +102,12 @@ def main(csv_path: Path, model_key: str):
 	prep.fit(train_df.drop(columns=[TARGET_COL]))
 	X_train, y_train = encode_features(prep, train_df, y_col=TARGET_COL)
 	X_test, y_test = encode_features(prep, test_df, y_col=TARGET_COL)
+
+	X_train = scaler.fit_transform(X_train)
+	X_test = scaler.transform(X_test)
+
+	sm = SMOTE(random_state=RANDOM_STATE)
+	X_train, y_train = sm.fit_resample(X_train, y_train)
 
 	model_base, param_grid = MODEL_REGISTRY[model_key]
 	if model_base is None:
@@ -143,10 +154,10 @@ def main(csv_path: Path, model_key: str):
 
 if __name__ == "__main__":
 	k_values = [2 ** i for i in range(11)]
-	model_keys = ["logistic", "tree", "forest", "mlp", "svm"]
+	model_keys = ["logistic", "tree", "forest", "mlp"]
 
 	if XGBClassifier:
-		# model_keys.append("xgb")
+		# model_keys.append("xgb")p1
 		pass
 
 	for model_key in model_keys:
