@@ -13,17 +13,14 @@ from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKF
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import confusion_matrix
+from sklearn.svm import LinearSVC
 
 from preprocessor import Preprocessor, encode_features
 
 from sklearn.preprocessing import StandardScaler
 from imblearn.over_sampling import SMOTE
 
-try:
-	from xgboost import XGBClassifier
-except ImportError:
-	XGBClassifier = None
+from xgboost import XGBClassifier
 
 scaler = StandardScaler()
 TARGET_COL = "y"
@@ -68,7 +65,7 @@ MODEL_REGISTRY = {
 		),
 		{},
 	),
-	"svm": (SVC(class_weight="balanced"), {"C": [0.1, 1, 10], "kernel": ["linear", "rbf"]}),
+	"svm": (LinearSVC(class_weight="balanced", max_iter=10000), {"C": [0.1, 1, 10]}),
 	"xgb": (
 		(
 			XGBClassifier(
@@ -103,6 +100,10 @@ def main(csv_path: Path, model_key: str):
 	X_train, y_train = encode_features(prep, train_df, y_col=TARGET_COL)
 	X_test, y_test = encode_features(prep, test_df, y_col=TARGET_COL)
 
+	if model_key == "xgb":
+		y_train = (y_train == "yes").astype(int)
+		y_test = (y_test == "yes").astype(int)
+
 	X_train = scaler.fit_transform(X_train)
 	X_test = scaler.transform(X_test)
 
@@ -110,8 +111,6 @@ def main(csv_path: Path, model_key: str):
 	X_train, y_train = sm.fit_resample(X_train, y_train)
 
 	model_base, param_grid = MODEL_REGISTRY[model_key]
-	if model_base is None:
-		raise ImportError("XGBoost not installed")
 
 	if param_grid:
 		model = GridSearchCV(
@@ -130,16 +129,23 @@ def main(csv_path: Path, model_key: str):
 	print(f"Test Accuracy: {acc:.4f}\n")
 	print(classification_report(y_test, preds))
 
+	if model_key == "xgb":
+		val_0 = "0"
+		val_1 = "1"
+	else:
+		val_0 = "no"
+		val_1 = "yes"
+
 	result_entry = {
 		"model": model_key,
 		"k": int(csv_path.stem.split("_k")[-1]),
 		"accuracy": acc,
-		"precision_0": report["no"]["precision"],
-		"recall_0": report["no"]["recall"],
-		"f1_0": report["no"]["f1-score"],
-		"precision_1": report["yes"]["precision"],
-		"recall_1": report["yes"]["recall"],
-		"f1_1": report["yes"]["f1-score"],
+		"precision_0": report[val_0]["precision"],
+		"recall_0": report[val_0]["recall"],
+		"f1_0": report[val_0]["f1-score"],
+		"precision_1": report[val_1]["precision"],
+		"recall_1": report[val_1]["recall"],
+		"f1_1": report[val_1]["f1-score"],
 		"macro_avg_precision": report["macro avg"]["precision"],
 		"macro_avg_recall": report["macro avg"]["recall"],
 		"macro_avg_f1": report["macro avg"]["f1-score"],
@@ -154,11 +160,10 @@ def main(csv_path: Path, model_key: str):
 
 if __name__ == "__main__":
 	k_values = [2 ** i for i in range(11)]
-	model_keys = ["logistic", "tree", "forest", "mlp"]
+	model_keys = ["logistic", "tree", "forest", "mlp", "svm"]
 
 	if XGBClassifier:
-		# model_keys.append("xgb")p1
-		pass
+		model_keys.append("xgb")
 
 	for model_key in model_keys:
 		print(f"=== Model: {model_key} ===")
