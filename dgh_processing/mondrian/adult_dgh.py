@@ -8,7 +8,7 @@ def get_adult_dghs() -> dict[str, DGH]:
     """Return a dictionary of DGHs for the adult dataset."""
 
     # ---- construct all six hierarchies ----
-    spec_dir = Path("../../data")
+    spec_dir = Path("../../archive/data")
     dghs: dict[str, DGH] = {
         "marital_status": build_dgh_from_file(
             spec_dir / "adult_marital_status.txt", "marital_status"
