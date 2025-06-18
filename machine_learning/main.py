@@ -158,7 +158,7 @@ if __name__ == "__main__":
             main(csv_path, model_key)
         print("\n")
 
-    with open("model_results.csv", "w", newline="") as f:
+    with open("adult_model_results.csv", "w", newline="") as f:
         fieldnames = sorted({k for r in results for k in r})
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()

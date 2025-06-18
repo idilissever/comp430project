@@ -32,30 +32,39 @@ import pandas as pd
 # ----------------------------------------------------------------------------
 
 SUPPRESS_TOKEN = "*"
-_INTERVAL_RE = re.compile(r"[\[]?(?P<low>\d+\.?\d*),\s*(?P<high>\d+\.?\d*)[\[]?")
+_INTERVAL_RE = re.compile(r"[\[]?(?P<low>-?\d+\.?\d*),\s*(?P<high>-?\d+\.?\d*)[\[]?")
 
 # ----------------------------------------------------------------------------
 # Helpers
 # ----------------------------------------------------------------------------
 
+LOWER_BOUND = -1e6
+UPPER_BOUND = 1e6
 
 def _parse_interval(interval_str: str) -> tuple[float, float]:
     """Extract numeric (low, high) from interval notation like "[20, 40["."""
-    m = _INTERVAL_RE.match(interval_str.strip())
-    if m is None:
-        # Then assume it is a single value, e.g. "30"
-        try:
-            value = float(interval_str.strip())
-            return value, value
-        except ValueError:
-            try:
-                # Might be an upper bound like >= 80
-                value = float(interval_str.strip().lstrip(">="))
-                return value, value
-            except ValueError:
-                raise ValueError(f"Invalid interval format: {interval_str}")
+    s = interval_str.strip()
+    m = _INTERVAL_RE.match(s)
 
-    return float(m.group("low")), float(m.group("high"))
+    if m:
+        return float(m.group("low")), float(m.group("high"))
+
+        # Handle >=X form
+    if s.startswith(">="):
+        value = float(s[2:])
+        return value, UPPER_BOUND
+
+        # Handle <X form
+    if s.startswith("<"):
+        value = float(s[1:])
+        return LOWER_BOUND, value
+
+        # Fallback: single number
+    try:
+        value = float(s)
+        return value, value
+    except ValueError:
+        raise ValueError(f"Invalid interval format: {interval_str}")
 
 
 # ----------------------------------------------------------------------------

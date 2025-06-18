@@ -1,8 +1,6 @@
 import os
-
 import pandas as pd
-import anjana
-from anjana.anonymity import k_anonymity, l_diversity, t_closeness
+from anjana.anonymity import k_anonymity
 
 # Read and process the data
 data = pd.read_csv("adult-over-simplified.csv")
