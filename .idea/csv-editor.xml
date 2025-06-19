@@ -108,6 +108,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/anjana_anonymizer/adult_over_simplified_anonymized/adult_k1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/anjana_anonymizer/adult_over_simplified_anonymized/adult_k4.csv">
           <value>
             <Attribute>
@@ -178,6 +185,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/anjana_anonymizer/banking_simplified_anonymized/banking_k1.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/anjana_anonymizer/hierarchies/age.csv">
           <value>
             <Attribute>
@@ -227,108 +241,17 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="/basic_mondrian_adult_anonymized/adult_anonymized_k128.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/basic_mondrian_adult_anonymized/adult_anonymized_k16.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/basic_mondrian_adult_anonymized/adult_anonymized_k2.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/basic_mondrian_adult_anonymized/adult_anonymized_k32.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/basic_mondrian_adult_anonymized/adult_anonymized_k4.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/basic_mondrian_adult_anonymized/adult_anonymized_k64.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/basic_mondrian_adult_anonymized/adult_anonymized_k8.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/classification_accuracy_report.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/feature_importances/feature_importance_Decision_Tree_k16.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/feature_importances/feature_importance_Decision_Tree_k8.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/feature_importances/feature_importance_Logistic_Regression_k4.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/feature_importances/feature_importance_XGBoost_k8.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/mondrian_strict_adult_anonymized/mondrian_strict_k2.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/mondrian_strict_adult_anonymized/mondrian_strict_k4.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="/raw_data/adult.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/raw_data/bank-full.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>
